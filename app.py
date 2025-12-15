@@ -61,7 +61,7 @@ with st.expander("Additional options to increase prediction accuracy"):
 
 
     company_logo = col_logo.selectbox(
-        "Country",
+        "Company logo",
         options=['yes', 'no'],
         index=None,
         help='Please insert whether the company provided a company logo or not with "yes" or "no".',
@@ -120,5 +120,5 @@ if st.button('Predict'):
         '''
     else:
         '''
-        This job offer is most likely a correct job offer. However with a probability of X%, the job offer is still fake.
+        This job offer is not fake.
         '''
