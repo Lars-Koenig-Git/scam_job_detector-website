@@ -40,52 +40,53 @@ job_description = st.text_area(
 
 # Additional fields to increase predictive power
 with st.expander("Additional options to increase prediction accuracy"):
-    col_employ, col_country, col_logo = st.columns([1,1,1], gap = 'medium')
+    col_employ, col_country = st.columns([1,1], gap = 'medium')
 
     employment_type = col_employ.selectbox(
         'Employment type',
         options=employment_type,
-        index=None,
+        index=0,
         help='Please insert the type of employment the company offers such as full-time, part-time.',
         placeholder='Insert employment type'
     )
 
     country_id = col_country.selectbox(
         "Country",
-        options=sorted(countries.keys()),
+        options=countries.keys(),
         format_func=lambda code: f"{code} — {countries[code]}",
-        index=None,
+        index=0,
         help='The input should be the country ID as for example "US" for United States of America',
         placeholder='e.g. "US": "United States of America"',
     )
 
 
+
+    col_industry, col_logo = st.columns([1,1], gap='medium')
+
+    industry = col_industry.selectbox(
+        'Industry',
+        options=industries,
+        index=0,
+        help='Please insert the industrial sector of the job offer such as "Information Technology"',
+        placeholder='Insert industry of job offer'
+    )
+    
     company_logo = col_logo.selectbox(
         "Company logo",
-        options=['yes', 'no'],
-        index=None,
+        options=['no','yes'],
+        index=0,
         help='Please insert whether the company provided a company logo or not with "yes" or "no".',
         placeholder='Has company logo yes/no',
     )
 
 
-    col_industry, col_function = st.columns([1,1], gap='medium')
-
-    industry = col_industry.selectbox(
-        'Industry',
-        options=industries,
-        index=None,
-        help='Please insert the industrial sector of the job offer such as "Information Technology"',
-        placeholder='Insert industry of job offer'
-    )
-
-    comp_function = col_function.selectbox(
-        'Function of the Company',
-        options=company_function,
-        index=None,
-        help='Please insert the functionality of the company as for example Management Consulting.',
-        placeholder='Insert function of the company'
-    )
+    # comp_function = col_function.selectbox(
+    #     'Function of the Company',
+    #     options=company_function,
+    #     index=0,
+    #     help='Please insert the functionality of the company as for example Management Consulting.',
+    #     placeholder='Insert function of the company'
+    # )
 
 
 
