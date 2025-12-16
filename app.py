@@ -2,7 +2,8 @@ import streamlit as st
 import requests
 from wordcloud import WordCloud
 import json
-import matplotlib as plt
+import matplotlib.pyplot as plt
+import numpy as np
 
 # read in column values
 with (
@@ -81,26 +82,16 @@ with st.expander("Additional options to increase prediction accuracy"):
     )
 
 
-    # comp_function = col_function.selectbox(
-    #     'Function of the Company',
-    #     options=company_function,
-    #     index=0,
-    #     help='Please insert the functionality of the company as for example Management Consulting.',
-    #     placeholder='Insert function of the company'
-    # )
-
-
-
 
 if st.button('Predict'):
     # define url for our api on gcloud
-    # url = 'https://scamjobdetector-946041774253.europe-west1.run.app/predict'
-    url = 'http://127.0.0.1:8000/predict'
+    url = 'https://scamjobdetector-946041774253.europe-west1.run.app/predict'
+    # url = 'http://127.0.0.1:8000/predict'
+    
     # Add the input from above to pass as paramters in our prediction model.
     input_values = {
             'location': country_id,
             'industry': industry,
-     #       'function_str': comp_function,
             'employment_type': employment_type,
             'has_company_logo': company_logo,
             'description': job_description
@@ -125,3 +116,46 @@ if st.button('Predict'):
         '''
         This job offer is not fake.
         '''
+
+   
+    # plotting features
+    features = outcome['shap_features_text']
+    values = outcome['shap_text_values']
+    word_freq = dict(zip(features, np.abs(values)))
+    wc = WordCloud(
+        width=900,
+        height=450,
+        background_color="white"
+        ).generate_from_frequencies(word_freq)
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.imshow(wc, interpolation="bilinear")
+    ax.axis("off")
+    st.pyplot(fig)
+    plt.close(fig)
+
+    # Listing columns
+        #     'shap_features_binary': shap_features_binary,
+        # 'shap_values_binary': shap_values_binary,
+        # 'shap_features_country': shap_features_country,
+        # 'shap_values_country': shap_values_country
+    id = np.argmax(np.abs(outcome['shap_values_country']))
+    country = outcome['shap_features_country'][id]
+    st.text(country)
+
+    # listing whether logo was important
+    id = np.argmax(np.abs(outcome['shap_values_binary']))
+    logo = outcome['shap_features_binary'][id]
+
+
+    # Create explanation function for company logo feature
+
+    if company_logo == 0:
+        explanation = "Missing company logo increases the likelihood that this job posting is fake."
+    else:
+        explanation = "The presence of a company logo increases the credibility of the job posting."
+        
+    st.text(explanation)
+
+
+
