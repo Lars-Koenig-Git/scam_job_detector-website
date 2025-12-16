@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
-
+from wordcloud import WordCloud
 import json
+import matplotlib as plt
 
 # read in column values
 with (
@@ -73,7 +74,7 @@ with st.expander("Additional options to increase prediction accuracy"):
     
     company_logo = col_logo.selectbox(
         "Company logo",
-        options=['no','yes'],
+        options=[0,1],
         index=0,
         help='Please insert whether the company provided a company logo or not with "yes" or "no".',
         placeholder='Has company logo yes/no',
@@ -93,13 +94,13 @@ with st.expander("Additional options to increase prediction accuracy"):
 
 if st.button('Predict'):
     # define url for our api on gcloud
-    url = 'https://scamjobdetector-946041774253.europe-west1.run.app/predict'
-
+    # url = 'https://scamjobdetector-946041774253.europe-west1.run.app/predict'
+    url = 'http://127.0.0.1:8000/predict'
     # Add the input from above to pass as paramters in our prediction model.
     input_values = {
             'location': country_id,
             'industry': industry,
-            'function_str': comp_function,
+     #       'function_str': comp_function,
             'employment_type': employment_type,
             'has_company_logo': company_logo,
             'description': job_description
@@ -112,8 +113,9 @@ if st.button('Predict'):
     
     # get result
     outcome = predict_outcome(input_values)
-    outcome = outcome['fraudulent']
-    st.subheader(f'Result of our model:{outcome}')
+    outcome_value = outcome['fraudulent']
+    outcome_proba = outcome['prob_fraudulent']
+    st.subheader(f'Result of our model:{outcome_value}; with probability to be scam: {outcome_proba}')
 
     if outcome == 1:
         '''
