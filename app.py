@@ -142,6 +142,8 @@ if st.button('Predict'):
         outcome = predict_outcome(input_values)
         outcome_value = outcome['fraudulent']
         outcome_proba = outcome['prob_fraudulent']
+        st.session_state["outcome_X_columns"] = outcome["column_names"]
+        st.session_state["outcome_X_values"]  = outcome["column_values"]
 
         st.subheader(f"Result of our model: {outcome_value}")
         st.subheader(f"Probability to be scam: {outcome_proba:.2%}")
@@ -161,41 +163,54 @@ if st.button('Predict'):
 
 
 
-    # plotting features
-    features = outcome['shap_features_text']
-    values = outcome['shap_text_values']
-    word_freq = dict(zip(features, np.abs(values)))
-    wc = WordCloud(
-        width=900,
-        height=450,
-        background_color="white"
-        ).generate_from_frequencies(word_freq)
 
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.imshow(wc, interpolation="bilinear")
-    ax.axis("off")
-    st.pyplot(fig)
-    plt.close(fig)
+if st.button('Explain'):
+    # 🔄 Spinner while prediction is running
+    with st.spinner("Computing cloud of words that drove the prediction..."):
+        
+        # Add the input from above to pass as paramters in our prediction model.
+        url = "http://127.0.0.1:8000/explain"
 
-    # Listing columns
-        #     'shap_features_binary': shap_features_binary,
-        # 'shap_values_binary': shap_values_binary,
-        # 'shap_features_country': shap_features_country,
-        # 'shap_values_country': shap_values_country
-    id = np.argmax(np.abs(outcome['shap_values_country']))
-    country = outcome['shap_features_country'][id]
-    st.text(country)
+        params = {
+            "column_names": json.dumps(st.session_state["outcome_X_columns"]),
+            "column_values": json.dumps(st.session_state["outcome_X_values"]),
+        }
 
-    # listing whether logo was important
-    id = np.argmax(np.abs(outcome['shap_values_binary']))
-    logo = outcome['shap_features_binary'][id]
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        outcome = response.json()
+
+        # plotting features
+        features = outcome['shap_features_text']
+        values = outcome['shap_text_values']
+        word_freq = dict(zip(features, np.abs(values)))
+        wc = WordCloud(
+            width=900,
+            height=450,
+            background_color="white"
+            ).generate_from_frequencies(word_freq)
+
+        fig, ax = plt.subplots(figsize=(12, 6))
+        ax.imshow(wc, interpolation="bilinear")
+        ax.axis("off")
+        st.pyplot(fig)
+        plt.close(fig)
+
+        # Listing columns
+        id = np.argmax(np.abs(outcome['shap_values_country']))
+        country = outcome['shap_features_country'][id]
+        st.text(country)
+
+        # listing whether logo was important
+        id = np.argmax(np.abs(outcome['shap_values_binary']))
+        logo = outcome['shap_features_binary'][id]
 
 
-    # Create explanation function for company logo feature
+        # Create explanation function for company logo feature
 
-    if company_logo == 0:
-        explanation = "Missing company logo increases the likelihood that this job posting is fake."
-    else:
-        explanation = "The presence of a company logo increases the credibility of the job posting."
-
-    st.text(explanation)
+        if company_logo == 0:
+            explanation = "Missing company logo increases the likelihood that this job posting is fake."
+        else:
+            explanation = "The presence of a company logo increases the credibility of the job posting."
+            
+        st.text(explanation)
