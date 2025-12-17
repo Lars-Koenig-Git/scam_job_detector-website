@@ -143,10 +143,8 @@ if st.button('Predict'):
         outcome_value = outcome['fraudulent']
         outcome_proba = outcome['prob_fraudulent']
 
-        st.subheader(
-            f"Result of our model: {outcome_value}; "
-            f"with probability to be scam: {outcome_proba:.2%}"
-        )
+        st.subheader(f"Result of our model: {outcome_value}")
+        st.subheader(f"Probability to be scam: {outcome_proba:.2%}")
 
         # 🔴 Fake job → red text | 🟢 Genuine job → green text
         if outcome_value == 1:
