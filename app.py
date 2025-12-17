@@ -62,7 +62,13 @@ This website serves to predict whether a particular job is is likely to be fake 
 
 st.markdown(
     '''
-    #### Please enter the full job posting text, including the title, description, requirements, and benefits.
+----------------------------------------------
+    '''
+)
+
+st.markdown(
+    '''
+Please enter the full job posting text, including the title, description, requirements, and benefits.
     '''
 )
 
