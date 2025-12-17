@@ -17,7 +17,40 @@ with (
     company_function = json.load(f3)
     employment_type = json.load(f4)
 
+
+
+#####################################
+# BANNER
+#####################################
+
+from PIL import Image
+from io import BytesIO
+
+# Image URL
+banner_url = "https://www.scam-detector.com/wp-content/uploads/2024/12/payment-off-platform-scams-960x720.jpg"
+
+# Fetch image from URL
+response = requests.get(banner_url)
+img = Image.open(BytesIO(response.content))
+
+# Resize to custom width and height (stretch if necessary)
+custom_width = 1200
+custom_height = 500
+img = img.resize((custom_width, custom_height))
+
+# Display the resized/stretched image
+st.image(img, caption="")
+
+######################################
+#Title
+######################################
+
 st.title('Welcome to Scam Job Detection!')
+
+
+######################################
+#BODY
+######################################
 
 st.markdown(
 '''
