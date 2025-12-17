@@ -27,19 +27,22 @@ from PIL import Image
 from io import BytesIO
 
 # Image URL
-banner_url = "https://www.scam-detector.com/wp-content/uploads/2024/12/payment-off-platform-scams-960x720.jpg"
+banner_url = "scam_job_detector.png"
 
 # Fetch image from URL
-response = requests.get(banner_url)
-img = Image.open(BytesIO(response.content))
+# response = requests.get(banner_url)
+img = Image.open(banner_url)
 
 # Resize to custom width and height (stretch if necessary)
-custom_width = 1200
-custom_height = 500
+custom_width = 800
+custom_height = 800
 img = img.resize((custom_width, custom_height))
 
 # Display the resized/stretched image
-st.image(img, caption="")
+
+left_co, cent_co,last_co = st.columns([1, 6, 1])
+with cent_co:
+    st.image(img, caption="")
 
 ######################################
 #Title
@@ -167,7 +170,7 @@ if st.button('Predict'):
 if st.button('Explain'):
     # 🔄 Spinner while prediction is running
     with st.spinner("Computing cloud of words that drove the prediction..."):
-        
+
         # Add the input from above to pass as paramters in our prediction model.
         url = "http://127.0.0.1:8000/explain"
 
@@ -212,5 +215,5 @@ if st.button('Explain'):
             explanation = "Missing company logo increases the likelihood that this job posting is fake."
         else:
             explanation = "The presence of a company logo increases the credibility of the job posting."
-            
+
         st.text(explanation)
