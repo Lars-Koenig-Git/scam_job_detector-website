@@ -72,7 +72,7 @@ with st.expander("Additional options to increase prediction accuracy"):
         help='Please insert the industrial sector of the job offer such as "Information Technology"',
         placeholder='Insert industry of job offer'
     )
-    
+
     company_logo = col_logo.selectbox(
         "Company logo",
         options=[0,1],
@@ -82,42 +82,54 @@ with st.expander("Additional options to increase prediction accuracy"):
     )
 
 
-
 if st.button('Predict'):
-    # define url for our api on gcloud
-    url = 'https://scamjobdetector-946041774253.europe-west1.run.app/predict'
-    # url = 'http://127.0.0.1:8000/predict'
-    
-    # Add the input from above to pass as paramters in our prediction model.
-    input_values = {
+
+    # 🔄 Spinner while prediction is running
+    with st.spinner("Predicting..."):
+
+        # define url for our api on gcloud
+        # url = 'https://scamjobdetector-946041774253.europe-west1.run.app/predict'
+        url = 'http://127.0.0.1:8000/predict'
+
+        # Add the input from above to pass as parameters in our prediction model
+        input_values = {
             'location': country_id,
             'industry': industry,
             'employment_type': employment_type,
             'has_company_logo': company_logo,
             'description': job_description
-    }
+        }
 
-    # function to call prediction model
-    def predict_outcome(params):
-        response = requests.get(url, params=params)
-        return response.json()
-    
-    # get result
-    outcome = predict_outcome(input_values)
-    outcome_value = outcome['fraudulent']
-    outcome_proba = outcome['prob_fraudulent']
-    st.subheader(f'Result of our model:{outcome_value}; with probability to be scam: {outcome_proba}')
+        # function to call prediction model
+        def predict_outcome(params):
+            response = requests.get(url, params=params)
+            return response.json()
 
-    if outcome == 1:
-        '''
-        This job offer is most likely fake.
-        '''
-    else:
-        '''
-        This job offer is not fake.
-        '''
+        # get result
+        outcome = predict_outcome(input_values)
+        outcome_value = outcome['fraudulent']
+        outcome_proba = outcome['prob_fraudulent']
 
-   
+        st.subheader(
+            f"Result of our model: {outcome_value}; "
+            f"with probability to be scam: {outcome_proba:.2%}"
+        )
+
+        # 🔴 Fake job → red text | 🟢 Genuine job → green text
+        if outcome_value == 1:
+            st.markdown(
+                "<h4 style='color:red;'>🚨 This job offer is most likely fake.</h4>",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                "<h4 style='color:green;'>✅ This job offer is likely genuine.</h4>",
+                unsafe_allow_html=True
+            )
+
+
+
+
     # plotting features
     features = outcome['shap_features_text']
     values = outcome['shap_text_values']
@@ -154,8 +166,5 @@ if st.button('Predict'):
         explanation = "Missing company logo increases the likelihood that this job posting is fake."
     else:
         explanation = "The presence of a company logo increases the credibility of the job posting."
-        
+
     st.text(explanation)
-
-
-
