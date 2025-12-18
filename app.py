@@ -48,7 +48,7 @@ with cent_co:
 #Title
 ######################################
 
-st.title('Welcome to Scam Job Detection!')
+st.title('Welcome to Scam Job Detector!')
 
 
 ######################################
@@ -158,7 +158,7 @@ if st.button('Predict'):
         st.session_state["outcome_X_values"]  = outcome["column_values"]
 
         st.subheader(f"Result of our model: {outcome_value}")
-        st.subheader(f"Probability to be scam: {outcome_proba:.2%}")
+        # st.subheader(f"Probability to be scam: {outcome_proba:.2%}")
 
         # 🔴 Fake job → red text | 🟢 Genuine job → green text
         if outcome_value == 1:
@@ -196,7 +196,7 @@ if st.button('Explain'):
 
 
         if outcome_value == 1:
-            st.markdown('''The cloud of words below shows what our ML model has identified in your job description as key indicators for the job beeing fake.
+            st.markdown('''The cloud of words below shows what our ML model has identified in your job description as key indicators for the job being fake.
 
                     
                         ''')
@@ -234,9 +234,13 @@ if st.button('Explain'):
             plt.close(fig)
 
         # Listing columns
-        with st.expander('## Detailed explanation'):
+        with st.expander('## Technical explanation'):
             for item in outcome['non_text_contributions']:
                 st.text(item)
+
+        # https://www.linkedin.com/pulse/fake-job-listings-9-red-flags-how-spot-them-andersontruckingservice-5cegc/
+        # st.link_button("Get additional information on how to identify scam job offers", "https://www.linkedin.com/pulse/fake-job-listings-9-red-flags-how-spot-them-andersontruckingservice-5cegc/")
+        # st.markdown('<a href="https://www.linkedin.com/pulse/fake-job-listings-9-red-flags-how-spot-them-andersontruckingservice-5cegc/" target="_blank">Get additional information on how to identify scam job offers</a>', unsafe_allow_html=True)
 
         # id = np.argmax(np.abs(outcome['shap_values_country']))
         # country = outcome['shap_features_country'][id]
@@ -249,9 +253,140 @@ if st.button('Explain'):
 
         # Create explanation function for company logo feature
 
-        if company_logo == 0:
-            explanation = "Missing company logo increases the likelihood that this job posting is fake."
-        else:
-            explanation = "The presence of a company logo increases the credibility of the job posting."
+        # if company_logo == 0:
+        #     explanation = "Missing company logo increases the likelihood that this job posting is fake."
+        # else:
+        #     explanation = "The presence of a company logo increases the credibility of the job posting."
 
-        st.text(explanation)
+        # st.text(explanation)
+import streamlit as st
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+import streamlit.components.v1 as components
+
+def fetch_preview(url: str) -> dict:
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+    r = requests.get(url, headers=headers, timeout=12, allow_redirects=True)
+
+    # LinkedIn often blocks scraping with a "999" response
+    if r.status_code in (401, 403, 999):
+        raise RuntimeError(f"Blocked by site (HTTP {r.status_code}).")
+
+    soup = BeautifulSoup(r.text, "html.parser")
+
+    def meta(prop: str):
+        tag = soup.find("meta", property=prop) or soup.find("meta", attrs={"name": prop})
+        return tag.get("content", "").strip() if tag else ""
+
+    title = meta("og:title") or (soup.title.string.strip() if soup.title else url)
+    desc  = meta("og:description") or meta("description")
+    image = meta("og:image") or meta("twitter:image")
+    site  = meta("og:site_name") or urlparse(url).netloc
+
+    # Optional extras (may be empty depending on the page)
+    author = meta("author") or meta("article:author")
+    return {"url": url, "title": title, "desc": desc, "image": image, "site": site, "author": author}
+
+def render_card(p: dict):
+    img_html = f"<img src='{p['image']}' class='lp-img'/>" if p["image"] else ""
+    author_html = f"<div class='lp-meta'>Written by<br><span class='lp-author'>{p['author']}</span></div>" if p["author"] else ""
+
+    html = f"""
+    <div class="lp-wrap">
+      <a class="lp-link" href="{p['url']}" target="_blank" rel="noopener noreferrer">
+        <div class="lp-top">
+          <div class="lp-site">{p['site']}</div>
+          <div class="lp-title">{p['title']}</div>
+          <div class="lp-desc">{p['desc']}</div>
+        </div>
+        <div class="lp-bottom">
+          {author_html}
+          <div class="lp-thumb">{img_html}</div>
+        </div>
+      </a>
+    </div>
+
+    <style>
+      .lp-wrap {{
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 14px;
+        overflow: hidden;
+        background: rgba(255,255,255,0.02);
+      }}
+      .lp-link {{
+        display:block;
+        padding: 18px 18px 14px 18px;
+        text-decoration:none;
+        color: inherit;
+      }}
+      .lp-site {{
+        font-size: 14px;
+        opacity: 0.85;
+        margin-bottom: 10px;
+      }}
+      .lp-title {{
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.15;
+        margin-bottom: 10px;
+        color: #4ea1ff;
+      }}
+      .lp-desc {{
+        font-size: 16px;
+        opacity: 0.92;
+        line-height: 1.5;
+        margin-bottom: 16px;
+        max-height: 4.6em;
+        overflow: hidden;
+      }}
+      .lp-bottom {{
+        display:flex;
+        gap: 16px;
+        align-items:flex-start;
+        justify-content: space-between;
+      }}
+      .lp-meta {{
+        font-size: 16px;
+        opacity: 0.9;
+        white-space: nowrap;
+      }}
+      .lp-author {{
+        display:inline-block;
+        margin-top: 6px;
+        font-size: 22px;
+        font-weight: 500;
+        white-space: normal;
+      }}
+      .lp-thumb {{
+        width: 220px;
+        min-width: 220px;
+      }}
+      .lp-img {{
+        width: 100%;
+        border-radius: 12px;
+        display:block;
+        object-fit: cover;
+      }}
+    </style>
+    """
+    components.html(html, height=360)
+
+st.title("Additional information for identifying fake job postings.")
+
+
+url = st.text_input(
+    "URL",
+    "https://www.linkedin.com/pulse/fake-job-listings-9-red-flags-how-spot-them-andersontruckingservice-5cegc/",
+)
+
+if url:
+    try:
+        preview = fetch_preview(url)
+        render_card(preview)
+    except Exception as e:
+        st.warning(f"Preview not available: {e}")
+        st.markdown(f"[Open link]({url})")
