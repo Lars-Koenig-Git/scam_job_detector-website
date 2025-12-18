@@ -79,11 +79,11 @@ job_description = st.text_area(
     help='Please insert the full job description including the title, job descriptions, requirements, and benefits.',
     label_visibility='visible',
     placeholder='Job description',
-    height=200,
+    height=300,
 )
 
 # Additional fields to increase predictive power
-with st.expander("Additional options to increase prediction accuracy"):
+with st.expander("Additional options to increase prediction accuracy",expanded=True):
     col_employ, col_country = st.columns([1,1], gap = 'medium')
 
     employment_type = col_employ.selectbox(
@@ -150,7 +150,10 @@ if st.button('Predict'):
         # get result
         outcome = predict_outcome(input_values)
         outcome_value = outcome['fraudulent']
+        st.session_state['outcome_value'] = outcome['fraudulent']
+
         outcome_proba = outcome['prob_fraudulent']
+
         st.session_state["outcome_X_columns"] = outcome["column_names"]
         st.session_state["outcome_X_values"]  = outcome["column_values"]
 
@@ -188,31 +191,60 @@ if st.button('Explain'):
         response = requests.get(url, params=params)
         response.raise_for_status()
         outcome = response.json()
+        outcome_value = st.session_state["outcome_value"]
 
-        # plotting features
-        features = outcome['shap_features_text']
-        values = outcome['shap_text_values']
-        word_freq = dict(zip(features, np.abs(values)))
-        wc = WordCloud(
-            width=900,
-            height=450,
-            background_color="white"
-            ).generate_from_frequencies(word_freq)
 
-        fig, ax = plt.subplots(figsize=(12, 6))
-        ax.imshow(wc, interpolation="bilinear")
-        ax.axis("off")
-        st.pyplot(fig)
-        plt.close(fig)
+
+        if outcome_value == 1:
+            st.markdown('''The cloud of words below shows what our ML model has identified in your job description as key indicators for the job beeing fake.
+
+                    
+                        ''')
+            # plotting features
+            features = outcome['text_contributions_words_fake']
+            values = outcome['text_contributions_contribution_fake']
+            word_freq = dict(zip(features, np.abs(values)))
+            wc = WordCloud(
+                width=900,
+                height=450,
+                background_color="white",
+                colormap="Reds"
+                ).generate_from_frequencies(word_freq)
+
+            fig, ax = plt.subplots(figsize=(12, 6))
+            ax.imshow(wc, interpolation="bilinear")
+            ax.axis("off")
+            st.pyplot(fig)
+            plt.close(fig)
+        else:
+            # plotting features
+            features = outcome['text_contributions_words_real']
+            values = outcome['text_contributions_contribution_real']
+            word_freq = dict(zip(features, np.abs(values)))
+            wc = WordCloud(
+                width=900,
+                height=450,
+                background_color="white"
+                ).generate_from_frequencies(word_freq)
+
+            fig, ax = plt.subplots(figsize=(12, 6))
+            ax.imshow(wc, interpolation="bilinear")
+            ax.axis("off")
+            st.pyplot(fig)
+            plt.close(fig)
 
         # Listing columns
-        id = np.argmax(np.abs(outcome['shap_values_country']))
-        country = outcome['shap_features_country'][id]
-        st.text(country)
+        with st.expander('## Detailed explanation'):
+            for item in outcome['non_text_contributions']:
+                st.text(item)
 
-        # listing whether logo was important
-        id = np.argmax(np.abs(outcome['shap_values_binary']))
-        logo = outcome['shap_features_binary'][id]
+        # id = np.argmax(np.abs(outcome['shap_values_country']))
+        # country = outcome['shap_features_country'][id]
+        # st.text(country)
+
+        # # listing whether logo was important
+        # id = np.argmax(np.abs(outcome['shap_values_binary']))
+        # logo = outcome['shap_features_binary'][id]
 
 
         # Create explanation function for company logo feature
