@@ -131,7 +131,7 @@ if st.button('Predict'):
 
         # define url for our api on gcloud
         # url = 'https://scamjobdetector-946041774253.europe-west1.run.app/predict'
-        url = 'http://127.0.0.1:8000/predict'
+        url = ' https://scamjobdetector-946041774253.europe-west1.run.app/predict'
 
         # Add the input from above to pass as parameters in our prediction model
         input_values = {
@@ -181,7 +181,7 @@ if st.button('Explain'):
     with st.spinner("Computing cloud of words that drove the prediction..."):
 
         # Add the input from above to pass as paramters in our prediction model.
-        url = "http://127.0.0.1:8000/explain"
+        url = " https://scamjobdetector-946041774253.europe-west1.run.app/explain"
 
         params = {
             "column_names": json.dumps(st.session_state["outcome_X_columns"]),
