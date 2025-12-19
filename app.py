@@ -157,18 +157,18 @@ if st.button('Predict'):
         st.session_state["outcome_X_columns"] = outcome["column_names"]
         st.session_state["outcome_X_values"]  = outcome["column_values"]
 
-        st.subheader(f"Result of our model: {outcome_value}")
+        # st.subheader(f"Result of our model: {outcome_value}")
         # st.subheader(f"Probability to be scam: {outcome_proba:.2%}")
 
         # 🔴 Fake job → red text | 🟢 Genuine job → green text
         if outcome_value == 1:
             st.markdown(
-                "<h4 style='color:red;'>🚨 This job offer is most likely fake.</h4>",
+                "<h3 style='color:red;'>🚨 This job offer is most likely fake.</h4>",
                 unsafe_allow_html=True
             )
         else:
             st.markdown(
-                "<h4 style='color:green;'>✅ This job offer is likely genuine.</h4>",
+                "<h3 style='color:green;'>✅ This job offer is likely genuine.</h4>",
                 unsafe_allow_html=True
             )
 
