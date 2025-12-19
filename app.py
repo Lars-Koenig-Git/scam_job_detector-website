@@ -4,6 +4,11 @@ from wordcloud import WordCloud
 import json
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
+from io import BytesIO
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+import streamlit.components.v1 as components
 
 # read in column values
 with (
@@ -23,8 +28,6 @@ with (
 # BANNER
 #####################################
 
-from PIL import Image
-from io import BytesIO
 
 # Image URL
 banner_url = "scam_job_detector.png"
@@ -238,32 +241,7 @@ if st.button('Explain'):
             for item in outcome['non_text_contributions']:
                 st.text(item)
 
-        # https://www.linkedin.com/pulse/fake-job-listings-9-red-flags-how-spot-them-andersontruckingservice-5cegc/
-        # st.link_button("Get additional information on how to identify scam job offers", "https://www.linkedin.com/pulse/fake-job-listings-9-red-flags-how-spot-them-andersontruckingservice-5cegc/")
-        # st.markdown('<a href="https://www.linkedin.com/pulse/fake-job-listings-9-red-flags-how-spot-them-andersontruckingservice-5cegc/" target="_blank">Get additional information on how to identify scam job offers</a>', unsafe_allow_html=True)
 
-        # id = np.argmax(np.abs(outcome['shap_values_country']))
-        # country = outcome['shap_features_country'][id]
-        # st.text(country)
-
-        # # listing whether logo was important
-        # id = np.argmax(np.abs(outcome['shap_values_binary']))
-        # logo = outcome['shap_features_binary'][id]
-
-
-        # Create explanation function for company logo feature
-
-        # if company_logo == 0:
-        #     explanation = "Missing company logo increases the likelihood that this job posting is fake."
-        # else:
-        #     explanation = "The presence of a company logo increases the credibility of the job posting."
-
-        # st.text(explanation)
-import streamlit as st
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-import streamlit.components.v1 as components
 
 def fetch_preview(url: str) -> dict:
     headers = {
