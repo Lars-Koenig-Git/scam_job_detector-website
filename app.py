@@ -253,8 +253,10 @@ def fetch_preview(url: str) -> dict:
     # LinkedIn often blocks scraping with a "999" response
     if r.status_code in (401, 403, 999):
         raise RuntimeError(f"Blocked by site (HTTP {r.status_code}).")
-
-    soup = BeautifulSoup(r.text, "html.parser")
+    try:
+        soup = BeautifulSoup(r.text, "lxml")
+    except Exception:
+        soup = BeautifulSoup(r.text, "html.parser")
 
     def meta(prop: str):
         tag = soup.find("meta", property=prop) or soup.find("meta", attrs={"name": prop})

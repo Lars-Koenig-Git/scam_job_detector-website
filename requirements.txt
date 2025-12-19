@@ -37,3 +37,5 @@ urllib3==2.6.2
 watchdog==6.0.0
 wordcloud
 matplotlib
+beautifulsoup4==4.12.3
+lxml==5.3.0
