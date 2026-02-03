@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 from wordcloud import WordCloud
 import json
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
@@ -132,9 +133,10 @@ if st.button('Predict'):
     # 🔄 Spinner while prediction is running
     with st.spinner("Predicting..."):
 
-        # define url for our api on gcloud
-        # url = 'https://scamjobdetector-946041774253.europe-west1.run.app/predict'
-        url = ' https://scamjobdetector-946041774253.europe-west1.run.app/predict'
+        # API base (can be set with SCAM_API_URL env var). Defaults to local FastAPI server.
+        # Example: SCAM_API_URL="http://127.0.0.1:8000"
+        api_base = os.environ.get("SCAM_API_URL", "http://127.0.0.1:8000").rstrip("/")
+        url = f"{api_base}/predict"
 
         # Add the input from above to pass as parameters in our prediction model
         input_values = {
@@ -183,8 +185,9 @@ if st.button('Explain'):
     # 🔄 Spinner while prediction is running
     with st.spinner("Computing cloud of words that drove the prediction..."):
 
-        # Add the input from above to pass as paramters in our prediction model.
-        url = " https://scamjobdetector-946041774253.europe-west1.run.app/explain"
+        # API base (can be set with SCAM_API_URL env var). Defaults to local FastAPI server.
+        api_base = os.environ.get("SCAM_API_URL", "http://127.0.0.1:8000").rstrip("/")
+        url = f"{api_base}/explain"
 
         params = {
             "column_names": json.dumps(st.session_state["outcome_X_columns"]),
