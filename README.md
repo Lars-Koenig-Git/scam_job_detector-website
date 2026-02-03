@@ -1,6 +1,6 @@
-# Scam Job Detector 🔍
+# Scam Job Detector - WebApp 🔍
 
-**Scam Job Detector** is a small Streamlit app that helps identify likely fake job postings using a remote ML prediction service. Enter a job posting (title, description, requirements, benefits) and the app will call a hosted API to predict whether the posting is fraudulent and provide an explanation (word cloud) of features driving the result.
+**Scam Job Detector - WebApp** is a small Streamlit app that helps identify likely fake job postings using a remote ML prediction service. Enter a job posting (title, description, requirements, benefits) and the app will call a hosted API to predict whether the posting is fraudulent and provide an explanation (word cloud) of features driving the result.
 
 ---
 
@@ -116,3 +116,4 @@ No license specified. Add a `LICENSE` file if you want to pick one (e.g., MIT).
 ---
 
 > If you'd like, I can also add a basic `Makefile` target or an environment variable option to configure the API base URL instead of editing `app.py` directly. 💡
+
